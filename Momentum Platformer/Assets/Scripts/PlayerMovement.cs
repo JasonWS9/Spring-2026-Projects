@@ -1,5 +1,6 @@
 using UnityEngine;
 using System;
+using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -9,6 +10,9 @@ public class PlayerMovement : MonoBehaviour
 
     private Vector2 moveInput;
     private Vector3 velocity;
+
+    private InputAction moveAction;
+    private InputAction jumpAction;
 
     [Header("Speed")]
     public float maxSpeed = 20f;
@@ -36,19 +40,22 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("Raycasts")]
     public float groundCheckOffset = 0.4f;
+    public float wallCheckOffset = 0.3f;
     public float groundCheckDistance = 2f;
     public float sideRayDistance = 2f;
 
-    LayerMask groundMask;
-    LayerMask wallJumpMask;
+    [Header("Masks")]
+    public LayerMask groundMask;
+    public LayerMask wallJumpMask;
     
     void Awake()
     {
         instance = this;
         rb = GetComponent<Rigidbody2D>();
 
-        groundMask = LayerMask.GetMask("Ground");
-        wallJumpMask = LayerMask.GetMask("Wall", "Ground");
+        moveAction = InputSystem.actions.FindAction("Move");
+        jumpAction = InputSystem.actions.FindAction("Jump");
+
     }
 
     void Start()
@@ -58,13 +65,12 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        moveInput.x = Input.GetAxisRaw("Horizontal");
-        moveInput.y = Input.GetAxisRaw("Vertical");
+        moveInput = moveAction.ReadValue<Vector2>();
 
         lastOnGroundTime -= Time.deltaTime;
         lastPressedJumpTime -= Time.deltaTime;
 
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (jumpAction.WasPressedThisFrame())
         {
             lastPressedJumpTime = jumpBufferTime;
         }
@@ -197,10 +203,22 @@ public class PlayerMovement : MonoBehaviour
 
     bool CanWallJumpLeft()
     {
-        //Checks a raycast to the right of the player
-        if (Physics2D.Raycast(transform.position, Vector2.right, sideRayDistance, wallJumpMask))
+        float[] verticalOffsets = { -wallCheckOffset, 0f, wallCheckOffset };
+
+        foreach (float offset in verticalOffsets)
         {
-            return true;
+            //Checks a raycast to the right of the player
+            if (Physics2D.Raycast(
+                new Vector2(transform.position.x, transform.position.y + offset),
+                Vector2.right,
+                sideRayDistance,
+                wallJumpMask))
+            {
+                if (!IsGrounded())
+                {
+                    return true;
+                }
+            }
         }
         return false;
     }
@@ -222,11 +240,15 @@ public class PlayerMovement : MonoBehaviour
         Debug.DrawRay(new Vector2(transform.position.x - groundCheckOffset, transform.position.y), Vector2.down * groundCheckDistance, Color.red);
         Debug.DrawRay(transform.position, Vector2.down * groundCheckDistance, Color.orange);
         Debug.DrawRay(new Vector2(transform.position.x + groundCheckOffset, transform.position.y), Vector2.down * groundCheckDistance, Color.yellow);
-        //Wall jump rays
+        //Left wall jump rays
+        Debug.DrawRay(new Vector2(transform.position.x, transform.position.y - wallCheckOffset), Vector2.right * sideRayDistance, Color.blue);
         Debug.DrawRay(transform.position, Vector2.right * sideRayDistance, Color.blue);
+        Debug.DrawRay(new Vector2(transform.position.x, transform.position.y + wallCheckOffset), Vector2.right * sideRayDistance, Color.blue);
+        //Right wall jump rays
         Debug.DrawRay(transform.position, Vector2.left * sideRayDistance, Color.green);
 
-        Debug.Log("Gravity Scale: " + rb.gravityScale);
+        Debug.Log(CanWallJumpLeft());
+        //Debug.Log("Gravity Scale: " + rb.gravityScale);
         //Debug.Log("Horizontal Velocity: " + rb.linearVelocity.x);
         //Debug.Log("Vertical Velocity: " + rb.linearVelocity.y);
 
