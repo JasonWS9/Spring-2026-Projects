@@ -6,11 +6,23 @@ public class PlayerManager : MonoBehaviour
 
     private InputAction resetAction;
 
+    public Vector2 spawnPoint;
+
     void Start()
     {
         resetAction = InputSystem.actions.FindAction("Reset");
+        spawnPoint = transform.position;
     }
 
+    void Update()
+    {
+        if (resetAction.WasPressedThisFrame())
+        {
+            SceneManagment.instance.ReloadCurrentScene();
+        }
+    }
+
+#region Collisions
     void OnCollisionEnter2D(Collision2D collision)
     {
         
@@ -22,13 +34,22 @@ public class PlayerManager : MonoBehaviour
         {
             TimerManager.instance.CompleteLevel();
         }
-    }
 
-    void Update()
-    {
-        if (resetAction.WasPressedThisFrame())
+        if (collision.CompareTag("Killfloor"))
         {
-            SceneManagment.instance.ReloadCurrentScene();
+            PlayerDeath();
+        }
+
+        if (collision.CompareTag("SpawnPoint"))
+        {
+            spawnPoint = collision.transform.position;
         }
     }
+#endregion
+
+    void PlayerDeath()
+    {
+        transform.position = spawnPoint;
+    }
+
 }

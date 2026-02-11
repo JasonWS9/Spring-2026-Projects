@@ -3,6 +3,7 @@ using System;
 using UnityEngine.InputSystem;
 using Unity.Mathematics;
 using NUnit.Framework;
+using System.Collections;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -11,8 +12,10 @@ public class PlayerMovement : MonoBehaviour
 
     private Rigidbody2D rb;
 
+    private Animator animator;
+
     private Vector2 moveInput;
-    private Vector3 velocity;
+    private Vector3 playerVelocity;
 
     private InputAction moveAction;
     private InputAction jumpAction;
@@ -74,6 +77,7 @@ public class PlayerMovement : MonoBehaviour
     {
         instance = this;
         rb = GetComponent<Rigidbody2D>();
+        animator = GetComponent<Animator>();
 
         moveAction = InputSystem.actions.FindAction("Move");
         jumpAction = InputSystem.actions.FindAction("Jump");
@@ -90,6 +94,8 @@ public class PlayerMovement : MonoBehaviour
     void Update()
     {
         moveInput = moveAction.ReadValue<Vector2>();
+
+        playerVelocity = rb.linearVelocity;
 
         if (jumpAction.WasPressedThisFrame())
         {
@@ -122,6 +128,7 @@ public class PlayerMovement : MonoBehaviour
             if (IsGrounded())
             {
                 lastOnGroundTime = coyoteTimeAmount;
+                animator.SetBool(("isGrounded"), true);
             }
         }
 
@@ -174,7 +181,7 @@ public class PlayerMovement : MonoBehaviour
         }
     #endregion
 
-    #region Jump Gravity Stuff
+    #region Gravity
         rb.linearVelocityY = Mathf.Max(rb.linearVelocity.y, maxFallSpeed);
 
         if (jumpAction.WasReleasedThisFrame())
@@ -260,6 +267,14 @@ public class PlayerMovement : MonoBehaviour
     void SetGravity(float amount)
     {
         rb.gravityScale = amount;
+    }
+
+    private IEnumerator DampenHorizontalInput(float amount, float time)
+    {
+        float unDampenedSpeed = maxSpeed;
+        maxSpeed *= amount;
+        yield return new WaitForSeconds(time);
+        maxSpeed = unDampenedSpeed;
     }
 
 #region Jump Functions
