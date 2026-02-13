@@ -4,15 +4,16 @@ using UnityEngine.InputSystem;
 using Unity.Mathematics;
 using NUnit.Framework;
 using System.Collections;
+using Unity.VisualScripting;
 
 public class PlayerMovement : MonoBehaviour
 {
 #region Variables
     public static PlayerMovement instance;
 
-    private Rigidbody2D rb;
+    private Rigidbody2D playerRb;
 
-    private Animator animator;
+    public Animator animator;
 
     private Vector2 moveInput;
     private Vector3 playerVelocity;
@@ -20,6 +21,8 @@ public class PlayerMovement : MonoBehaviour
     private InputAction moveAction;
     private InputAction jumpAction;
     private InputAction slamAction;
+
+    [SerializeField] private SpriteRenderer playerVisuals;
 
 
     [Header("Speed")]
@@ -76,8 +79,8 @@ public class PlayerMovement : MonoBehaviour
     void Awake()
     {
         instance = this;
-        rb = GetComponent<Rigidbody2D>();
-        animator = GetComponent<Animator>();
+        playerRb = GetComponent<Rigidbody2D>();
+        //animator = GetComponentInChildren<Animator>();
 
         moveAction = InputSystem.actions.FindAction("Move");
         jumpAction = InputSystem.actions.FindAction("Jump");
@@ -95,11 +98,19 @@ public class PlayerMovement : MonoBehaviour
     {
         moveInput = moveAction.ReadValue<Vector2>();
 
-        playerVelocity = rb.linearVelocity;
+        playerVelocity = playerRb.linearVelocity;
 
         if (jumpAction.WasPressedThisFrame())
         {
             lastPressedJumpTime = jumpBufferTime;
+        }
+
+        if (!isFacingRight)
+        {
+            playerVisuals.flipX = true;
+        } else
+        {
+            playerVisuals.flipX = false;
         }
 
         HandleTimers();
@@ -123,17 +134,24 @@ public class PlayerMovement : MonoBehaviour
         lastOnRightWallTime -= Time.deltaTime;
         lastOnWallTime -= Time.deltaTime;
 
+
+        if (IsGrounded())
+        {
+            animator.SetBool("isGrounded", true);
+        }
+
         if (!isJumping)
         {
             if (IsGrounded())
             {
                 lastOnGroundTime = coyoteTimeAmount;
-                animator.SetBool(("isGrounded"), true);
+
             }
         }
 
         if (!IsGrounded())
         {
+            animator.SetBool("isGrounded", false);
             lastInAirTime = coyoteTimeAmount;
         }
 
@@ -175,24 +193,24 @@ public class PlayerMovement : MonoBehaviour
             }
         }
 
-        if (isJumping && rb.linearVelocity.y < 0)
+        if (isJumping && playerRb.linearVelocity.y < 0)
         {
             isJumping = false;
         }
     #endregion
 
     #region Gravity
-        rb.linearVelocityY = Mathf.Max(rb.linearVelocity.y, maxFallSpeed);
+        playerRb.linearVelocityY = Mathf.Max(playerRb.linearVelocity.y, maxFallSpeed);
 
         if (jumpAction.WasReleasedThisFrame())
         {
             if (CanJumpCut())
             {
-                rb.linearVelocityY *= jumpCutMultiplier;
+                playerRb.linearVelocityY *= jumpCutMultiplier;
                 isJumping = false;
             }
         }
-        else if (rb.linearVelocity.y < 0)
+        else if (playerRb.linearVelocity.y < 0)
         {
             SetGravity(fallingGravityScale);
         }
@@ -217,8 +235,11 @@ public class PlayerMovement : MonoBehaviour
     void HandleMovement()
     {
         //Checks if input is negative or positive to go left or right
-        float currentSpeed = rb.linearVelocity.x;
+        float currentSpeed = playerRb.linearVelocity.x;
         float targetSpeed = moveInput.x * maxSpeed;
+
+        animator.SetFloat("HVelocity", targetSpeed);
+        animator.SetFloat("VVelocity", playerRb.linearVelocityY);
 
 
         if (moveInput.x > 0.001)
@@ -261,12 +282,12 @@ public class PlayerMovement : MonoBehaviour
             finalSpeed = 0f;
         }
 
-        rb.linearVelocityX = finalSpeed;
+        playerRb.linearVelocityX = finalSpeed;
     }
 
     void SetGravity(float amount)
     {
-        rb.gravityScale = amount;
+        playerRb.gravityScale = amount;
     }
 
     private IEnumerator DampenHorizontalInput(float amount, float time)
@@ -288,7 +309,7 @@ public class PlayerMovement : MonoBehaviour
         lastOnGroundTime = 0;
         lastPressedJumpTime = 0;
 
-        rb.linearVelocityY = jumpForce;
+        playerRb.linearVelocityY = jumpForce;
     }
 
     void SlamJump()
@@ -300,7 +321,7 @@ public class PlayerMovement : MonoBehaviour
         lastOnGroundTime = 0;
         lastPressedJumpTime = 0;
 
-        rb.linearVelocity = isFacingRight ? 
+        playerRb.linearVelocity = isFacingRight ? 
         groundSlamJumpVelocity : new Vector2(-groundSlamJumpVelocity.x , groundSlamJumpVelocity.y);
     }
 
@@ -319,19 +340,20 @@ public class PlayerMovement : MonoBehaviour
         //Wall Jump To The Left
         if (isJumpingRight == false)
         {
-            rb.linearVelocity = new Vector2(-wallJumpHorizontalForce, wallJumpVerticalForce);
+            playerRb.linearVelocity = new Vector2(-wallJumpHorizontalForce, wallJumpVerticalForce);
         }
         //Wall Jump To The Right
         if (isJumpingRight == true)
         {
-            rb.linearVelocity = new Vector2(wallJumpHorizontalForce, wallJumpVerticalForce);
+            playerRb.linearVelocity = new Vector2(wallJumpHorizontalForce, wallJumpVerticalForce);
         }
     }
 
     void GroundSlam()
     {
         isSlamming = true;
-        rb.linearVelocityY = groundSlamForce;
+        animator.SetTrigger("Slam");
+        playerRb.linearVelocityY = groundSlamForce;
     }
 
 #endregion
@@ -409,7 +431,7 @@ public class PlayerMovement : MonoBehaviour
 
     private bool CanJumpCut()
     {
-        return isJumping && rb.linearVelocity.y > 0;
+        return isJumping && playerRb.linearVelocity.y > 0;
     }
 
     bool CanWallJumpLeft()

@@ -35,7 +35,7 @@ public class PlayerManager : MonoBehaviour
             TimerManager.instance.CompleteLevel();
         }
 
-        if (collision.CompareTag("Killfloor"))
+        if (collision.CompareTag("Hazard"))
         {
             PlayerDeath();
         }

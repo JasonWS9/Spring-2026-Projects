@@ -42,6 +42,12 @@ public class TimerManager : MonoBehaviour
             //ToString("F1") rounds the time to the first decimal place
             timerText.text = "Time: " + currentTime.ToString("F1");
         }
+
+        if (currentTime <= 0)
+        {
+            PauseTimer();
+            SceneManagment.instance.ReloadCurrentScene();
+        }
     }
 
     public void StartTimer()
