@@ -111,8 +111,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   animator: {fileID: 5564988383326525917}
   playerVisuals: {fileID: 1765992704031690157}
-  maxSpeed: 25
-  groundAcceleration: 20
+  maxSpeed: 35
+  groundAcceleration: 15
   groundTurningAcceleration: 35
   airAcceleration: 30
   airTurningAcceleration: 40

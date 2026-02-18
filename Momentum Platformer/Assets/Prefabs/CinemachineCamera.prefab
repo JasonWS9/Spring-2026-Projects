@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 8308810913976104287}
   - component: {fileID: 6828635973161636726}
   - component: {fileID: 7860970703128023556}
+  - component: {fileID: 5461536492465620184}
   m_Layer: 0
   m_Name: CinemachineCamera
   m_TagString: Untagged
@@ -89,7 +90,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 886251e9a18ece04ea8e61686c173e1b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachinePositionComposer
-  CameraDistance: 10
+  CameraDistance: 12
   DeadZoneDepth: 0
   Composition:
     ScreenPosition: {x: 0, y: 0}
@@ -128,3 +129,20 @@ MonoBehaviour:
     MaxWindowSize: 0
     Padding: 0
   m_LegacyMaxWindowSize: -2
+--- !u!114 &5461536492465620184
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3498941364254737172}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6f385bbabc77ce469c435b1c174ac5e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CameraManager
+  playerRB: {fileID: 0}
+  horizontalSpeedZoomMult: 0
+  verticalSpeedZoomMult: 0
+  maxCameraZoom: 20
+  lerpValue: 0.5

@@ -233,6 +233,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4285503285433424245, guid: 158ac257b76d52e46b450327dac644e1, type: 3}
   m_PrefabInstance: {fileID: 4583054648029404663}
   m_PrefabAsset: {fileID: 0}
+--- !u!50 &451790984 stripped
+Rigidbody2D:
+  m_CorrespondingSourceObject: {fileID: 4449281044144322828, guid: 158ac257b76d52e46b450327dac644e1, type: 3}
+  m_PrefabInstance: {fileID: 4583054648029404663}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &481048135
 GameObject:
   m_ObjectHideFlags: 0
@@ -3138,7 +3143,7 @@ Transform:
   m_GameObject: {fileID: 105079841933974279}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 11.150098, y: 6.35173, z: -10}
+  m_LocalPosition: {x: 11.159073, y: 6.35176, z: -12}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3453,7 +3458,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3259843224677648984, guid: aa8a75b33527c9945b5b6e3a5d0bb8e1, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -10
+      value: -12
       objectReference: {fileID: 0}
     - target: {fileID: 3259843224677648984, guid: aa8a75b33527c9945b5b6e3a5d0bb8e1, type: 3}
       propertyPath: m_LocalRotation.w
@@ -3487,6 +3492,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: CinemachineCamera
       objectReference: {fileID: 0}
+    - target: {fileID: 5461536492465620184, guid: aa8a75b33527c9945b5b6e3a5d0bb8e1, type: 3}
+      propertyPath: playerRB
+      value: 
+      objectReference: {fileID: 451790984}
     - target: {fileID: 7860970703128023556, guid: aa8a75b33527c9945b5b6e3a5d0bb8e1, type: 3}
       propertyPath: BoundingShape2D
       value: 
